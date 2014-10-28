@@ -1,0 +1,17 @@
+<% include partials/header %>
+
+<% if(currentUser.id !== user.id){ %>
+      <h1 style = "color:red;">You do not have access to this page, please go <a href="/">home</a></h1>
+      <% } else { %>
+
+  <form action="/posts" method="POST">
+    <input name="post[title]" placeholder="title">
+    <input name="post[description]" placeholder="description">
+    <input type="hidden" name="post[UserId]" value="<%= user.id %>">
+    <input type="submit" value="Save">
+  </form>
+  <% } %>
+<% include partials/footer %>
+
+
+
