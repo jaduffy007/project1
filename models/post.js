@@ -6,6 +6,7 @@ module.exports = function(sequelize, DataTypes) {
     description: DataTypes.STRING,
     image_url: DataTypes.STRING,
     UserId: DataTypes.INTEGER,
+    location: DataTypes.STRING,
     WinnerId: DataTypes.INTEGER,
     hasWon: {
       type: DataTypes.BOOLEAN,

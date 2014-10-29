@@ -1,15 +1,15 @@
 <% include partials/header.ejs%>
 
-<p>
-  Title: <%= post.title %>
-</p>
+<h2><%= post.title %></h2>
 
 <p>
-  Description: <%= post.description %>
+  <%= post.description %>
 </p>
 
+<img src="<%= post.image_url %>"/>
+
 <p>
-  Image: <%= post.image_url %>
+  Location: <%= post.location %>
 </p>
 
 <p>
@@ -17,7 +17,7 @@
 </p>
 
 
-<form style="display:inline-block;" onsubmit="return confirm('Are you sure?');" action="/liked" method = "POST">
+<form style="display:inline-block;" action="/liked" method = "POST">
     <input type="hidden" name="UserId" value="<%= user.id%>">
     <input type="hidden" name="PostId" value="<%= post.id%>">
     <input type="hidden" name="CurrentUserId" value="<%= currentUser.id%>">
@@ -31,7 +31,11 @@
     <input type="hidden" name="CurrentUserId" value="<%= currentUser.id%>">
     <input type="submit" class = "btn btn-success btn-lg" value="Grab it!">
 </form>
-<% } %>
+<% } %> 
+
+
+
+
 <p>
 	<a href="/">Go home</a>
 </p>

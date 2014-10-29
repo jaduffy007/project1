@@ -4,6 +4,15 @@
       <h1 style = "color:red;">You do not have access to this page, please go <a href="/">home</a></h1>
       <% } else { %>
 
+<!-- Added by me at 3pm 10-29-14 -->
+	<% if (typeof errMsg != 'undefined') { %>
+		<div class = "alert alert-success">
+      <%= errMsg %>
+    </div>
+	<% } %>
+
+
+
   <form action="/users/<%= user.id%>/posts/<%= post.id %>?_method=put" method="POST">
     <input name="post[title]" value="<%= post.title %>" autofocus>
     <input name="post[description]" value="<%= post.description %>">

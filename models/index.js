@@ -61,6 +61,7 @@ Object.keys(db).forEach(function(modelName) {
 //   isLiked: true
 // });
 
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 

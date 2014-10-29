@@ -37,7 +37,10 @@ module.exports = {
       hasWon: {
         type: DataTypes.BOOLEAN,
         default: false
-      }
+      },
+      location: {
+        type: DataTypes.STRING
+      },
     }).done(done);
   },
   down: function(migration, DataTypes, done) {

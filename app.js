@@ -7,6 +7,7 @@ var express = require("express"),
   db = require("./models/index"),
   flash = require('connect-flash'),
   methodOverride = require("method-override"),
+  request = require("request"),
   app = express();
   var morgan = require('morgan');
   var routeMiddleware = require("./config/routes");
@@ -31,6 +32,11 @@ app.use(session( {
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
+
+app.use(function(req,res,next){
+  res.locals = { currentUser: req.user };
+  next();
+});
 
 // prepare our serialize functions
 passport.serializeUser(function(user, done){
@@ -143,7 +149,7 @@ app.post('/grabbed', function(req,res){
   // find the user who created that post
 });
 
-// Grab it Button - Should send "buyer" the Donor's email contact?
+// Like it Button 
 app.post('/liked', function(req,res){  
   var userId = req.body.UserId;
   var postId = req.body.PostId;
@@ -162,19 +168,36 @@ app.post('/liked', function(req,res){
 
 
 
-// //New
+//New
 // app.get('/posts', function(req, res){
 //   res.render("new");
 // });
 
 //Submit New Post
-app.post('/posts/', function(req, res) {
+app.post('/posts', function(req, res) {
+
+  var latitude = req.body.latitude;
+  var longitude = req.body.longitude;
+
+  var url = "http://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&sensor=false";
+
+  request(url, function(err,response,body){
+    var result = JSON.parse(body);
+    var fullAddress = result.results[0].formatted_address;
+    var addressArray = fullAddress.split(",");
+    var location = addressArray[1].trim();
+    console.log(location);
+
   var title = req.body.post.title;
   var description = req.body.post.description;
+  var image_url = req.body.image_url;
   var UserId = req.body.post.UserId;
+  console.log("IMAGE URL: ", image_url);
   db.Post.create({
     title: title,
     description: description,
+    location: location,
+    image_url: image_url,
     UserId: UserId
   }).done(function(err,success){
     if(err) {
@@ -183,9 +206,10 @@ app.post('/posts/', function(req, res) {
       // question about object above
     }
     else{
-      res.redirect('/users/' + UserId+ '/posts' );
+      res.redirect('/users/' + UserId + '/posts' );
     }
   });
+});
 });
 
 // All posts by User Id
@@ -193,18 +217,57 @@ app.get('/users/:user_id/posts',routeMiddleware.checkAuthentication, function(re
   var id = req.params.user_id;
   db.User.find(id).done(function(err,user){
     if(err || user === null){
-        res.redirect('/home');
-      }
-       else{
-    user.getPosts().done(function(err,allPosts){
-      res.render('showForUser', {currentUser: req.user, user:user, allPosts: allPosts});  
+      res.redirect('/home');
+    } else {
+      user.getPosts().done(function(err,allPosts){
+        res.render('showForUser', {currentUser: req.user, user:user, allPosts: allPosts});  
       });
     }
   });
 });
 
 
+// All likes by User Id
+app.get('/users/:user_id/likes',routeMiddleware.checkAuthentication, function(req, res) {
+  var userId = req.params.user_id;
+  var postId = req.params.post_id;
+  db.User.find(userId).done(function(err,user){
+    if(err || user === null){
+      res.redirect('/home');
+    } else {
+      db.PostsUsers.findAll({
+        where: {
+          UserId: req.user.id,
+          isLiked: true
+        },
+        // "include:" joins the matching Post object with the given like
+        include: [db.Post]
+      }).done(function(err,likes){
+        res.render('showLikes', {currentUser: req.user, user:user, likes: likes});
+      });
+    }
+  });
+});
+
+app.put('/likes/:post_id/dislike',routeMiddleware.checkAuthentication, function(req, res){
+  db.PostsUsers.find({
+    where: {
+      PostId: req.params.post_id,
+      UserId: req.user.id
+    }
+  }).done(function(err,post){
+    post.updateAttributes({
+      isLiked: false
+    }).done(function(err,dislikedPost){
+      res.redirect('/users/' + req.user.id + '/likes');
+    });
+  });
+});
+
+
 // this route takes us to a form where we edit existing posts
+// See below: {post:post, user:user, currentUser:req.user}); these are the only
+// key value pairs the view template can use.  Need something? you gotta add it to your logic here.
 app.get('/users/:user_id/posts/:post_id/edit', routeMiddleware.checkAuthentication, function(req,res){
   var userId = req.params.user_id;
   var postId = req.params.post_id;
@@ -213,7 +276,6 @@ app.get('/users/:user_id/posts/:post_id/edit', routeMiddleware.checkAuthenticati
     res.render("edit", {post:post, user:user, currentUser:req.user});
     });  
   });
-  
 });
 
 // this route takes us to a form where we create new posts
@@ -261,27 +323,25 @@ app.put('/users/:user_id/posts/:post_id',routeMiddleware.checkAuthentication, fu
   var userId = req.params.user_id;
   db.User.find(userId).done(function(err,user){
     db.Post.find(id).done(function(err,post){
+      //if post.title not null then
       post.updateAttributes({
         title: req.body.post.title,
         description: req.body.post.description
-    }).done(function(err,success){
-      if(err) {
-        // TODO - let the user know, if something is wrong with the post they edit.
-        // possibilities - no title? description is too short?
-        // TODO #2 Create dynamic error messages, depending on what went wrong
-        res.render('edit',{post: post});
-      }
-      else{
+    }).done(function(err, post){
+      if(post.title === ''){
+        var errMsg = "Please enter a title";
+        res.render('edit',{errMsg:errMsg, post: post, user: user});
+      } else {
         res.redirect('/users/' + user.id + '/posts'); 
       }
      });
     });
   });
-  });
+});
+
 
 //Delete
 app.delete('/users/:user_id/posts/:post_id', function(req, res) {
-  // why isn't var id (below) via req.BODY.id??
   var id = req.params.post_id;
   var userId = req.params.user_id;
   db.Post.find(id).done(function(err,post){
