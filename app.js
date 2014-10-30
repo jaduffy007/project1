@@ -167,12 +167,6 @@ app.post('/liked', function(req,res){
 });
 
 
-
-//New
-// app.get('/posts', function(req, res){
-//   res.render("new");
-// });
-
 //Submit New Post
 app.post('/posts', function(req, res) {
 
