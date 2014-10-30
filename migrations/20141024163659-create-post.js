@@ -17,6 +17,7 @@ module.exports = {
         type: DataTypes.STRING
       },
       image_url: {
+        allowNull: true,
         type: DataTypes.STRING
       },
       createdAt: {

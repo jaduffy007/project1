@@ -44,8 +44,8 @@
         
         	<% if (typeof user !== 'undefined') { %>
 						<li><a href="/home">See all posts</a></li>			  
-						<li><a href="/users/<%=user.id%>/posts">My Posts</a></li>
-            <li><a href="/users/<%=user.id%>/likes">My Likes</a></li>
+						<li><a href="/users/<%=currentUser.id%>/posts">My Posts</a></li>
+            <li><a href="/users/<%=currentUser.id%>/likes">My Likes</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
             <li><a href="/logout">Logout</a></li>

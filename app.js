@@ -227,7 +227,7 @@ app.get('/users/:user_id/posts',routeMiddleware.checkAuthentication, function(re
 });
 
 
-// All likes by User Id
+// All likes by User Id. Note use of currentUser being assigned to req.user
 app.get('/users/:user_id/likes',routeMiddleware.checkAuthentication, function(req, res) {
   var userId = req.params.user_id;
   db.User.find(userId).done(function(err,user){
