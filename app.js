@@ -326,7 +326,8 @@ app.put('/users/:user_id/posts/:post_id',routeMiddleware.checkAuthentication, fu
       //if post.title not null then
       post.updateAttributes({
         title: req.body.post.title,
-        description: req.body.post.description
+        description: req.body.post.description,
+        image_url: req.body.image_url
     }).done(function(err, post){
       if(post.title === ''){
         var errMsg = "Please enter a title";
