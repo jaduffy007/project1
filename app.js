@@ -230,18 +230,16 @@ app.get('/users/:user_id/posts',routeMiddleware.checkAuthentication, function(re
 // All likes by User Id
 app.get('/users/:user_id/likes',routeMiddleware.checkAuthentication, function(req, res) {
   var userId = req.params.user_id;
-  var postId = req.params.post_id;
   db.User.find(userId).done(function(err,user){
     if(err || user === null){
       res.redirect('/home');
-    } else {
-      db.PostsUsers.findAll({
+    } 
+    else {
+      db.PostsUsers.findAll({include:[db.Post],
         where: {
           UserId: req.user.id,
           isLiked: true
-        },
-        // "include:" joins the matching Post object with the given like
-        include: [db.Post]
+        }
       }).done(function(err,likes){
         res.render('showLikes', {currentUser: req.user, user:user, likes: likes});
       });
@@ -249,6 +247,7 @@ app.get('/users/:user_id/likes',routeMiddleware.checkAuthentication, function(re
   });
 });
 
+// Unlike, resets isLiked to false
 app.put('/likes/:post_id/dislike',routeMiddleware.checkAuthentication, function(req, res){
   db.PostsUsers.find({
     where: {
@@ -273,7 +272,8 @@ app.get('/users/:user_id/posts/:post_id/edit', routeMiddleware.checkAuthenticati
   var postId = req.params.post_id;
   db.User.find(userId).done(function(err,user){
     db.Post.find(postId).done(function(err,post){
-    res.render("edit", {post:post, user:user, currentUser:req.user});
+      var description = post.description;
+    res.render("edit", {post:post, user:user, description: description, currentUser:req.user});
     });  
   });
 });

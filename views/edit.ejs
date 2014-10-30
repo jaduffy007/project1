@@ -14,9 +14,21 @@
 
 
   <form action="/users/<%= user.id%>/posts/<%= post.id %>?_method=put" method="POST">
-    <input name="post[title]" value="<%= post.title %>" autofocus>
-    <input name="post[description]" value="<%= post.description %>">
+    <input name="post[title]" value="<%= post.title %>" autofocus><br>
+    <br>
+    <textarea name="post[description]" rows="4" cols="30" wrap="hard" maxlength="80" ><%= description %></textarea><br>
+    <br>
+    <input type="hidden" role="uploadcare-uploader"
+           data-crop="300x200 upscale"
+           data-images-only="true"
+           name="image_url"
+          />
+    <br>
+    <br>
     <input type="submit" value="Save Changes">
   </form>
   <% } %>
 <% include partials/footer %>
+
+
+
