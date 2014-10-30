@@ -10,7 +10,7 @@
     "dialect": "postgres"
   },
   "production": {
-    "use_env_variable": "DATABASE_URL",
+    "use_env_variable": "postgres://wqgdudohqqbkhv:jq7oqb6sxrAdu5sqnT1nEwxj25@ec2-54-225-255-208.compute-1.amazonaws.com:5432/def5kpgrh1t9gk",
     "dialect": "postgres"
   }
 }
